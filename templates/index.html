@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market Basket Analysis using Apriori Algorithm 🛒</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #eaffea, #ffffff);
+      color: #333;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    header {
+      background-color: #078b2d;
+      color: white;
+      padding: 25px 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 40px 20px;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 🌿 Larger Center Card */
+    .main-card {
+      background-color: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      padding: 70px 50px;
+      text-align: center;
+      width: 80%;
+      max-width: 850px;
+      transition: transform 0.3s ease;
+    }
+
+    .main-card:hover {
+      transform: scale(1.01);
+    }
+
+    .main-card h2 {
+      color: #078b2d;
+      font-size: 1.7rem;
+      margin-bottom: 35px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-box {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      padding: 15px;
+      width: 360px;
+      border: 2px solid #078b2d;
+      border-radius: 10px;
+      outline: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"]:focus {
+      border-color: #ffcc00;
+      box-shadow: 0 0 10px #ffcc00;
+    }
+
+    button {
+      padding: 15px 30px;
+      background-color: #078b2d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background-color: #05681e;
+      transform: scale(1.05);
+    }
+
+    .results {
+      margin-top: 40px;
+    }
+
+    h3 {
+      color: #078b2d;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .item-card {
+      background-color: #ffffff;
+      border: 2px solid #078b2d;
+      border-radius: 14px;
+      padding: 25px 30px;
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: #078b2d;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .item-card:hover {
+      transform: translateY(-6px);
+      background-color: #e9ffe9;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .error {
+      color: red;
+      font-weight: 500;
+      margin-top: 15px;
+    }
+
+    .no-results {
+      color: gray;
+      font-style: italic;
+      margin-top: 15px;
+    }
+
+    footer {
+      background-color: #078b2d;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.95rem;
+      font-weight: 400;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 🔄 Loader animation */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #078b2d;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 0.9s linear infinite;
+      margin: 25px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Market Basket Analysis using Apriori Algorithm 🛒
+  </header>
+
+  <main>
+    <div class="main-card">
+      <h2>Get Product Recommendations Instantly</h2>
+      <div class="search-box">
+        <input type="text" id="itemInput" placeholder="Enter an item (e.g. bread)" />
+        <button onclick="getRecommendations()">Get Suggestions</button>
+      </div>
+      <div id="results" class="results"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>By Tanishka Vyas & Kushagra Takzare</p>
+  </footer>
+
+  <script>
+    const inputBox = document.getElementById("itemInput");
+    const resultsDiv = document.getElementById("results");
+
+    // 🔁 Press Enter to auto-fetch
+    inputBox.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        getRecommendations();
+      }
+    });
+
+    // ⚡ Fetch recommendations
+    async function getRecommendations() {
+      const item = inputBox.value.trim();
+      resultsDiv.innerHTML = '';
+
+      if (!item) {
+        resultsDiv.innerHTML = "<p class='error'>Please enter an item name!</p>";
+        return;
+      }
+
+      // Show loader animation
+      const loader = document.createElement("div");
+      loader.className = "loader";
+      resultsDiv.appendChild(loader);
+
+      try {
+        const response = await fetch(`/recommend?item=${item}`);
+        const data = await response.json();
+        resultsDiv.innerHTML = ''; // Clear loader
+
+        if (data.recommended_items && data.recommended_items.length > 0) {
+          resultsDiv.innerHTML = "<h3>Recommended Items:</h3>";
+          const container = document.createElement('div');
+          container.className = 'card-container';
+
+          data.recommended_items.forEach(rec => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.textContent = rec;
+            container.appendChild(card);
+          });
+
+          resultsDiv.appendChild(container);
+        } else {
+          resultsDiv.innerHTML = "<p class='no-results'>No recommendations found for this item.</p>";
+        }
+      } catch (err) {
+        resultsDiv.innerHTML = "<p class='error'>Error fetching recommendations.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
