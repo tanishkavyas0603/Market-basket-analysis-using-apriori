@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Market Basket Analysis using Apriori Algorithm 🛒</title>
+  <title>Market Basket Analysis using Apriori Algorithm </title>
 
   <style>
     body {
@@ -153,9 +153,9 @@
     }
 
     .no-results {
-      color: gray;
+      color: red;
       font-style: italic;
-      margin-top: 15px;
+      margin-top: 35px;
     }
 
     footer {
@@ -187,23 +187,26 @@
 </head>
 <body>
   <header>
-    Market Basket Analysis using Apriori Algorithm 🛒
+    Grocery Recommendation System KT MART 🛒
   </header>
 
   <main>
     <div class="main-card">
       <h2>Get Product Recommendations Instantly</h2>
       <div class="search-box">
-        <input type="text" id="itemInput" placeholder="Enter an item (e.g. bread)" />
+        <input type="text" id="itemInput" placeholder="Enter an item (e.g. oil, beef , yogurt)" />
         <button onclick="getRecommendations()">Get Suggestions</button>
       </div>
       <div id="results" class="results"></div>
-    </div>
-  </main>
+    <div style="margin-top: 60px; text-align:center;">
+      <h2 style="color:#078b2d; margin-top:40px;">Bar Chart</h2>
+      <img id="recoBarChart" src="" width="600" style="display:none;border:1px solid #ccc; margin-bottom:40px;">
 
-  <footer>
-    <p>By Tanishka Vyas & Kushagra Takzare</p>
-  </footer>
+      <h2 style="color:#078b2d; margin-top:40px;">Network Graph</h2>
+      <img id="graphImage" src="" width="700" style="display:none;border:1px solid #ccc;">
+    </div>
+
+  </main>
 
   <script>
     const inputBox = document.getElementById("itemInput");
@@ -249,6 +252,15 @@
           });
 
           resultsDiv.appendChild(container);
+
+        // Show bar chart
+        document.getElementById("recoBarChart").src =`/reco_bar_chart?item=${item}&t=${Date.now()}`;
+        document.getElementById("recoBarChart").style.display="block"
+        // Show network graph
+        document.getElementById("graphImage").src =`/network-graph?item=${item}&t=${Date.now()}`;
+        document.getElementById("graphImage").style.display = "block";
+
+
         } else {
           resultsDiv.innerHTML = "<p class='no-results'>No recommendations found for this item.</p>";
         }
