@@ -5,7 +5,7 @@ df = pd.read_csv('C:/Users/sunil/Desktop/ML APRIORI/Dataset14-Grocery-MarketBask
 
 df = df.drop_duplicates() # remove duplicates
 
-# Create transaction table
+# Create transaction table / ye basket matric mei change krta hai data ko 
 trans_df = pd.crosstab(df['Member_number'], df['itemDescription']).reset_index()
 trans_df = trans_df.set_index('Member_number')
 
@@ -13,7 +13,7 @@ def encode_units(x):
     return 1 if x >= 1 else 0
 basket_trans = trans_df.map(encode_units).astype(bool)   
 
-frequent_itemsets = apriori(basket_trans, min_support=0.02, use_colnames=True) # Apply Apriori
+frequent_itemsets = apriori(basket_trans, min_support=0.02, use_colnames=True) # Apply Apriori calculate support
 
 rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0) # association rules
 
