@@ -10,7 +10,7 @@ import io
 app = Flask(__name__)
 
 # Load Apriori rules
-with open('C:/Users/sunil/Desktop/ML APRIORI/Dataset14-Grocery-MarketBasket-Analysis.pkl', 'rb') as f:
+with open('Dataset14-Grocery-MarketBasket-Analysis.pkl', 'rb') as f:
     rules = pickle.load(f)
 
 def suggest_items(item_name):
