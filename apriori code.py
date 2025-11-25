@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import pandas as pd
 from mlxtend.frequent_patterns import apriori, association_rules
 
@@ -34,7 +33,6 @@ def suggest_items(item_name):
 import pickle
 with open('C:/Users/sunil/Desktop/ML APRIORI/Dataset14-Grocery-MarketBasket-Analysis.pkl', 'wb') as f:
     pickle.dump(rules, f)
-=======
 import pandas as pd
 from mlxtend.frequent_patterns import apriori, association_rules
 
@@ -82,13 +80,7 @@ def suggest_items(item_name):
             recommendations.update(consequents)
     return list(recommendations)[:6]  # return top 6 suggestions
 
-# ✅ Test
-print("Suggestions for 'bread':", suggest_items('bread'))
-
-# ✅ Save your trained rules for Flask
 import pickle
 with open('C:/Users/sunil/Desktop/ML APRIORI/Dataset14-Grocery-MarketBasket-Analysis.pkl', 'wb') as f:
     pickle.dump(rules, f)
 
-print("✅ Apriori rules saved successfully!")
->>>>>>> 8c44dff1f39db340f3c89833e9a04999e374306c
