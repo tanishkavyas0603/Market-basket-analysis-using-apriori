@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import matplotlib
 matplotlib.use('Agg')    
 from flask import Flask, request, jsonify, render_template, send_file
@@ -143,7 +142,6 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
-=======
 from flask import Flask, request, jsonify, render_template
 import pickle
 
@@ -177,4 +175,4 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
->>>>>>> 8c44dff1f39db340f3c89833e9a04999e374306c
+
