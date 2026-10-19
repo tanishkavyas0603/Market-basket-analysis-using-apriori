@@ -198,14 +198,12 @@
         <button onclick="getRecommendations()">Get Suggestions</button>
       </div>
       <div id="results" class="results"></div>
-    <div style="margin-top: 60px; text-align:center;">
-      <h2 style="color:#078b2d; margin-top:40px;">Bar Chart</h2>
-      <img id="recoBarChart" src="" width="600" style="display:none;border:1px solid #ccc; margin-bottom:40px;">
 
-      <h2 style="color:#078b2d; margin-top:40px;">Network Graph</h2>
-      <img id="graphImage" src="" width="700" style="display:none;border:1px solid #ccc;">
+      <div style="margin-top: 50px; text-align:center;">
+        <h2 style="color:#078b2d; margin-top:30px;">Bar Chart</h2>
+        <img id="recoBarChart" src="" alt="Frequency Bar Chart" style="display:none; width: 100%; max-width: 760px; margin: 0 auto; border-radius: 12px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0;">
+      </div>
     </div>
-
   </main>
 
   <script>
@@ -223,6 +221,7 @@
     async function getRecommendations() {
       const item = inputBox.value.trim();
       resultsDiv.innerHTML = '';
+      document.getElementById("recoBarChart").style.display = "none";
 
       if (!item) {
         resultsDiv.innerHTML = "<p class='error'>Please enter an item name!</p>";
@@ -253,19 +252,17 @@
 
           resultsDiv.appendChild(container);
 
-        // Show bar chart
-        document.getElementById("recoBarChart").src =`/reco_bar_chart?item=${item}&t=${Date.now()}`;
-        document.getElementById("recoBarChart").style.display="block"
-        // Show network graph
-        document.getElementById("graphImage").src =`/network-graph?item=${item}&t=${Date.now()}`;
-        document.getElementById("graphImage").style.display = "block";
-
-
+          // Show bar chart
+          const barChart = document.getElementById("recoBarChart");
+          barChart.src = `/reco_bar_chart?item=${encodeURIComponent(item)}&t=${Date.now()}`;
+          barChart.style.display = "block";
         } else {
           resultsDiv.innerHTML = "<p class='no-results'>No recommendations found for this item.</p>";
+          document.getElementById("recoBarChart").style.display = "none";
         }
       } catch (err) {
         resultsDiv.innerHTML = "<p class='error'>Error fetching recommendations.</p>";
+        document.getElementById("recoBarChart").style.display = "none";
       }
     }
   </script>

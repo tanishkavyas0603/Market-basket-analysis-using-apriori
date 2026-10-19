@@ -4,13 +4,15 @@ from flask import Flask, request, jsonify, render_template, send_file
 import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
-import networkx as nx
 import io
+import os
 
 app = Flask(__name__)
 
 # Load Apriori rules
-with open('Dataset14-Grocery-MarketBasket-Analysis.pkl', 'rb') as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+pkl_path = os.path.join(BASE_DIR, 'Dataset14-Grocery-MarketBasket-Analysis.pkl')
+with open(pkl_path, 'rb') as f:
     rules = pickle.load(f)
 
 def suggest_items(item_name):
@@ -22,62 +24,6 @@ def suggest_items(item_name):
         if item_name in antecedents:
             recommendations.update(consequents)
     return list(recommendations)[:6]
-
-# NETWORK GRAPH
-def generated_network_graph(input_item, recommended_items):
-    G = nx.DiGraph()
-    input_item = input_item.lower()
-
-    # Build edges with lift values
-    for _, row in rules.iterrows():
-        antecedents = [a.lower() for a in list(row['antecedents'])]
-        consequents = [c.lower() for c in list(row['consequents'])]
-
-        if input_item in antecedents:
-            for item in recommended_items:
-                if item.lower() in consequents:
-                    lift_value = round(row['lift'], 2)
-                    G.add_edge(input_item, item.lower(), weight=lift_value)
-
-    # Start a clean figure
-    fig = plt.figure(figsize=(18,12))
-    ax = fig.add_subplot(111)
-
-    pos = nx.spring_layout(G, seed=42)
-
-    # Draw nodes
-    nx.draw_networkx_nodes(G, pos, node_color="lightgreen" , node_size=15000, ax=ax)
-
-    # Draw edges
-    nx.draw_networkx_edges(G, pos, arrows=True, arrowsize=14, edge_color="black", ax=ax)
-
-    # Draw labels
-    nx.draw_networkx_labels(G, pos, font_size=18,  font_color='black',font_weight="bold", ax=ax)
-
-    # Edge weight labels
-    edge_labels = nx.get_edge_attributes(G, 'weight')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='black', font_weight="bold", font_size=15 , ax=ax)
-
-    ax.axis("off") # taki grid or axis na aaye network graph mein
-
-    # Save image
-    buffer = io.BytesIO()
-    fig.savefig(buffer, format='png', dpi=300, bbox_inches="tight")
-    buffer.seek(0)
-    plt.close(fig)
-
-    return buffer
-
-
-
-@app.route('/network-graph')
-def network_graph():
-    input_item=request.args.get('item')
-    if not input_item:
-        return "Item not provided",400
-    recommended_items=suggest_items(input_item)
-    img = generated_network_graph(input_item,recommended_items)
-    return send_file(img, mimetype='image/png')
 
 # BAR CHART 
 
@@ -95,18 +41,41 @@ def generate_reco_bar_chart(recommended_items):
     df = pd.DataFrame(list(item_counts.items()), columns=['Item', 'Count'])
     df = df.sort_values(by='Count', ascending=True)
 
-    # Clean new figure 
-    fig = plt.figure(figsize=(18,12))
-    ax = fig.add_subplot(111)
+    # Dynamic figure height based on number of items for perfect vertical spacing
+    num_items = len(df)
+    fig_height = max(3.5, num_items * 0.7 + 1.2)
+    fig, ax = plt.subplots(figsize=(9.5, fig_height), dpi=150)
 
-    ax.barh(df['Item'], df['Count'], color="#087D35")
-    ax.set_xlabel("Number of time item occurred (Frequency)", fontsize=14, fontweight="bold")
-    ax.set_ylabel("Item Name", fontsize=16, fontweight="bold")
-    ax.set_title("Bar Chart for Comparison", fontsize=18, fontweight="bold") 
+    if not df.empty:
+        bars = ax.barh(df['Item'].str.title(), df['Count'], color="#078b2d", height=0.55, edgecolor="#05681e")
+        # Direct value labels on each bar
+        ax.bar_label(bars, padding=6, fontsize=11, fontweight="bold", color="#078b2d")
+        ax.set_xlim(0, max(df['Count']) * 1.15)
+
+    ax.set_xlabel("Occurrence Frequency in Rules", fontsize=12, fontweight="bold", color="#2d3748", labelpad=10)
+    ax.set_ylabel("Item Name", fontsize=12, fontweight="bold", color="#2d3748", labelpad=10)
+    ax.set_title("Recommended Items Frequency Comparison", fontsize=15, fontweight="bold", color="#078b2d", pad=14)
+
+    # Make item names and numbers large and readable
+    ax.tick_params(axis='y', labelsize=12, colors='#1a202c')
+    for label in ax.get_yticklabels():
+        label.set_fontweight('bold')
+
+    ax.tick_params(axis='x', labelsize=11, colors='#4a5568')
+
+    # Clean borders and grid
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#cbd5e0')
+    ax.spines['bottom'].set_color('#cbd5e0')
+    ax.xaxis.grid(True, linestyle='--', alpha=0.5, color='#e2e8f0')
+    ax.set_axisbelow(True)
+
+    fig.tight_layout()
 
     # Save to buffer
     buffer = io.BytesIO()
-    fig.savefig(buffer, format='png', dpi=300, bbox_inches="tight")
+    fig.savefig(buffer, format='png', dpi=150, bbox_inches="tight")
     buffer.seek(0)
     plt.close(fig)
 
@@ -142,37 +111,5 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True)
-from flask import Flask, request, jsonify, render_template
-import pickle
 
-app = Flask(__name__)
-
-# Load Apriori rules
-with open('C:/Users/sunil/Desktop/ML APRIORI/Dataset14-Grocery-MarketBasket-Analysis.pkl', 'rb') as f:
-    rules = pickle.load(f)
-
-def suggest_items(item_name):
-    item_name = item_name.strip().lower()
-    recommendations = set()
-    for _, rule in rules.iterrows():
-        antecedents = [a.lower() for a in list(rule['antecedents'])]
-        consequents = [c.lower() for c in list(rule['consequents'])]
-        if item_name in antecedents:
-            recommendations.update(consequents)
-    return list(recommendations)[:6]
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/recommend', methods=['GET'])
-def recommend():
-    item = request.args.get('item')
-    if not item:
-        return jsonify({'error': 'Please provide an item name.'}), 400
-    suggestions = suggest_items(item)
-    return jsonify({'input_item': item, 'recommended_items': suggestions})
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
