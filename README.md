@@ -140,4 +140,4 @@ The Flask app (`app.py`) provides the following endpoints:
 - **Mlxtend** — Apriori algorithm and association rule mining
 - **Flask** — Local web server and API routing
 - **Matplotlib** — Generating the horizontal bar chart
-- **HTML ** — Frontend user interface
+- **HTML** — Frontend user interface
